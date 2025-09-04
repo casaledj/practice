@@ -19,3 +19,39 @@ export const calculateDistance = (
   const distance = R * c;
   return distance;
 };
+
+export const geocodeLocation = async (
+  locationName: string
+): Promise<{ latitude: number; longitude: number } | null> => {
+  try {
+    const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(locationName)}&format=json&limit=1`);
+    const data = await response.json();
+    if (data && data.length > 0) {
+      return { latitude: parseFloat(data[0].lat), longitude: parseFloat(data[0].lon) };
+    }
+    return null;
+  } catch (error) {
+    console.error("Error geocoding location:", error);
+    return null;
+  }
+};
+
+export const getCurrentLocation = (): Promise<{ latitude: number; longitude: number }> => {
+  return new Promise((resolve, reject) => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          resolve({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          });
+        },
+        (error) => {
+          reject(error);
+        }
+      );
+    } else {
+      reject(new Error("Geolocation is not supported by this browser."));
+    }
+  });
+};

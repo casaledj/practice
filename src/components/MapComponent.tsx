@@ -36,26 +36,26 @@ interface MapComponentProps {
   restaurants: Restaurant[];
   userLocation: { latitude: number; longitude: number } | null;
   radius: number;
+  city: { latitude: number; longitude: number } | null;
 }
 
-const MapController: React.FC<{ userLocation: { latitude: number; longitude: number } | null } > = ({ userLocation }) => {
+const MapController: React.FC<{ userLocation: { latitude: number; longitude: number } | null; city: { latitude: number; longitude: number } | null; }> = ({ userLocation, city }) => {
   const map = useMap();
 
   useEffect(() => {
-    if (userLocation) {
+    if (city) {
+      map.setView([city.latitude, city.longitude], map.getZoom());
+    } else if (userLocation) {
       map.setView([userLocation.latitude, userLocation.longitude], map.getZoom());
     }
-  }, [userLocation, map]);
+  }, [userLocation, city, map]);
 
   return null;
 };
 
-const MapComponent: React.FC<MapComponentProps> = ({ restaurants, userLocation, radius }) => {
-  if (!userLocation) {
-    return <div>Loading map...</div>;
-  }
-
-  const center: [number, number] = [userLocation.latitude, userLocation.longitude];
+const MapComponent: React.FC<MapComponentProps> = ({ restaurants, userLocation, radius, city }) => {
+  const defaultCenter: [number, number] = [40.7128, -74.0060]; // Default to New York City
+  const center: [number, number] = city ? [city.latitude, city.longitude] : userLocation ? [userLocation.latitude, userLocation.longitude] : defaultCenter;
   const radiusInMeters = radius * 1609.34; // Convert miles to meters
 
   return (
@@ -65,11 +65,17 @@ const MapComponent: React.FC<MapComponentProps> = ({ restaurants, userLocation, 
         attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
       />
 
-      <MapController userLocation={userLocation} />
+      <MapController userLocation={userLocation} city={city} />
 
       {userLocation && (
-        <Marker position={center} icon={redIcon}>
+        <Marker position={[userLocation.latitude, userLocation.longitude]} icon={redIcon}>
           <Popup>Your Location</Popup>
+        </Marker>
+      )}
+
+      {city && (
+        <Marker position={[city.latitude, city.longitude]} icon={redIcon}>
+          <Popup>Searched City</Popup>
         </Marker>
       )}
 
@@ -83,7 +89,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ restaurants, userLocation, 
         </Marker>
       ))}
 
-      {userLocation && radius > 0 && (
+      {(userLocation || city) && radius > 0 && (
         <Circle center={center} radius={radiusInMeters} pathOptions={{ color: 'blue', fillOpacity: 0.1 }} />
       )}
     </MapContainer>
