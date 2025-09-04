@@ -2,9 +2,10 @@ export interface Restaurant {
     id: string;
     name: string;
     address: string;
-    cuisine: string;
-    rating: number;
-    distance: number; // Distance from the user's location in meters
+    cuisine?: string;
+    distance?: number; // Distance from the user's location in miles
+    latitude?: number;
+    longitude?: number;
 }
 
 export interface Location {

@@ -15,8 +15,7 @@ const RestaurantList: React.FC<RestaurantListProps> = ({ restaurants }) => {
                     <li key={restaurant.id}>
                         <h3>{restaurant.name}</h3>
                         <p>{restaurant.address}</p>
-                        <p>Rating: {restaurant.rating}</p>
-                        <p>Distance: {restaurant.distance} miles</p>
+                        <p>Distance: {restaurant.distance ? `${restaurant.distance.toFixed(2)}` : 'N/A'} miles</p>
                     </li>
                 ))}
             </ul>

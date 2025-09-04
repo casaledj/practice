@@ -1,33 +1,45 @@
 import axios from 'axios';
 import { Restaurant } from '../types';
+import { calculateDistance } from './locationUtils'; // Import the utility function
 
-const FOURSQUARE_API_URL = 'https://api.foursquare.com/v3/places/search';
-const FOURSQUARE_API_KEY = process.env.REACT_APP_FOURSQUARE_API_KEY;
+const GEOAPIFY_API_URL = 'https://api.geoapify.com/v2/places';
+const GEOAPIFY_API_KEY = process.env.REACT_APP_GEOAPIFY_API_KEY;
 
-export const fetchRestaurants = async (location: string, radius: number): Promise<Restaurant[]> => {
+export const fetchRestaurants = async (
+    userLat: number, // New parameter for user's latitude
+    userLon: number, // New parameter for user's longitude
+    radius: number
+): Promise<Restaurant[]> => {
     try {
         const radiusInMeters = radius * 1609.34; // Convert miles to meters
-        const response = await axios.get(FOURSQUARE_API_URL, {
+        // Use userLat and userLon directly for the filter
+        const response = await axios.get(GEOAPIFY_API_URL, {
             params: {
-                ll: location,
-                radius: radiusInMeters,
-                categories: '4d4b7105d754a06374d81259', // Category ID for restaurants
-                limit: 50, // Limit the number of results
-                v: '20250903' // Foursquare API versioning parameter (YYYYMMDD)
-            },
-            headers: {
-                Accept: 'application/json',
-                Authorization: FOURSQUARE_API_KEY,
+                categories: 'catering.restaurant',
+                filter: `circle:${userLon},${userLat},${radiusInMeters}`,
+                limit: 50,
+                apiKey: GEOAPIFY_API_KEY,
             },
         });
 
-        return response.data.results.map((place: any) => ({
-            id: place.fsq_id,
-            name: place.name,
-            address: place.location.address,
-            rating: 0, // Foursquare Places API search results do not directly provide a rating
-            distance: place.distance / 1609.34, // Convert meters back to miles
-        }));
+        return response.data.features.map((feature: any) => {
+            const restaurantLat = feature.properties.lat;
+            const restaurantLon = feature.properties.lon;
+
+            // Calculate distance manually using Haversine formula
+            const distance = (restaurantLat && restaurantLon)
+                ? calculateDistance(userLat, userLon, restaurantLat, restaurantLon)
+                : undefined; // Set to undefined if coordinates are missing
+
+            return {
+                id: feature.properties.place_id,
+                name: feature.properties.name,
+                address: feature.properties.formatted,
+                distance: distance,
+                latitude: restaurantLat,
+                longitude: restaurantLon,
+            };
+        });
     } catch (error) {
         console.error('Error fetching restaurants:', error);
         throw error;

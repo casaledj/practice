@@ -4,21 +4,32 @@
   "description": "A web application to display local restaurants within a user-defined radius.",
   "main": "src/index.tsx",
   "scripts": {
-    "start": "react-scripts --openssl-legacy-provider start",
-    "build": "react-scripts --openssl-legacy-provider build",
-    "test": "react-scripts --openssl-legacy-provider test",
-    "eject": "react-scripts eject"
+    "start": "react-app-rewired --openssl-legacy-provider start",
+    "build": "react-app-rewired --openssl-legacy-provider build",
+    "test": "react-app-rewired --openssl-legacy-provider test",
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
+  "homepage": "http://casaledj.github.io/practice",
   "dependencies": {
     "@types/minimatch": "^6.0.0",
     "axios": "^0.21.1",
+    "babel-plugin-module-resolver": "^5.0.2",
+    "customize-cra": "^1.0.0",
+    "dotenv": "^17.2.2",
+    "leaflet": "^1.9.4",
     "react": "^17.0.2",
+    "react-app-rewired": "^2.2.1",
     "react-dom": "^17.0.2",
+    "react-leaflet": "^3.2.5",
     "react-scripts": "4.0.3"
   },
   "devDependencies": {
+    "@types/leaflet": "^1.9.20",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
+    "gh-pages": "^6.3.0",
     "typescript": "^4.1.2"
   },
   "keywords": [
