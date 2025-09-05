@@ -1,24 +1,87 @@
 import React, { useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
+import L, { divIcon } from 'leaflet';
 import { Restaurant } from '../types';
 
-import icon from 'leaflet/dist/images/marker-icon.png';
-import iconRetina from 'leaflet/dist/images/marker-icon-2x.png';
-import shadow from 'leaflet/dist/images/marker-shadow.png';
+// Function to create a custom divIcon with an emoji
+const getCategoryIcon = (categories: string[] | undefined) => {
+  let emoji = '🍽️'; // Default emoji
 
-let DefaultIcon = L.icon({
-  iconUrl: icon,
-  iconRetinaUrl: iconRetina,
-  shadowUrl: shadow,
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
+  if (categories) {
+    const lowerCaseCategories = categories.map(cat => cat.toLowerCase());
 
-L.Marker.prototype.options.icon = DefaultIcon;
+    if (lowerCaseCategories.some(cat => cat.includes('pizza'))) {
+      emoji = '🍕';
+    } else if (lowerCaseCategories.some(cat => cat.includes('sushi'))) {
+      emoji = '🍣';
+    } else if (lowerCaseCategories.some(cat => cat.includes('steak_house'))) {
+      emoji = '🥩';
+    } else if (lowerCaseCategories.some(cat => cat.includes('burger'))) {
+      emoji = '🍔';
+    } else if (lowerCaseCategories.some(cat => cat.includes('sandwich'))) {
+      emoji = '🥪';
+    } else if (lowerCaseCategories.some(cat => cat.includes('wings'))) {
+      emoji = '🍗';
+    } else if (lowerCaseCategories.some(cat => cat.includes('mexican') || cat.includes('tex-mex'))) {
+      emoji = '🌮';
+    } else if (lowerCaseCategories.some(cat => cat.includes('indian'))) {
+      emoji = '🍛';
+    } else if (lowerCaseCategories.some(cat => cat.includes('chinese'))) {
+      emoji = '🍜';
+    } else if (lowerCaseCategories.some(cat => cat.includes('japanese'))) {
+      emoji = '🇯🇵';
+    } else if (lowerCaseCategories.some(cat => cat.includes('korean'))) {
+      emoji = '🇰🇷';
+    } else if (lowerCaseCategories.some(cat => cat.includes('italian'))) {
+      emoji = '🍝';
+    } else if (lowerCaseCategories.some(cat => cat.includes('mediterranean'))) {
+      emoji = '🥙';
+    } else if (lowerCaseCategories.some(cat => cat.includes('cuban'))) {
+      emoji = '🇨🇺';
+    } else if (lowerCaseCategories.some(cat => cat.includes('turkish'))) {
+      emoji = '🇹🇷';
+    } else if (lowerCaseCategories.some(cat => cat.includes('arab'))) {
+      emoji = '🇦🇪';
+    } else if (lowerCaseCategories.some(cat => cat.includes('american'))) {
+      emoji = '🍔'; // Using burger for general American
+    } else if (lowerCaseCategories.some(cat => cat.includes('asian'))) {
+      emoji = '🍜'; // Using noodle for general Asian
+    } else if (lowerCaseCategories.some(cat => cat.includes('coffee') || cat.includes('cafe'))) {
+      emoji = '☕';
+    } else if (lowerCaseCategories.some(cat => cat.includes('bar') || cat.includes('pub'))) {
+      emoji = '🍻';
+    } else if (lowerCaseCategories.some(cat => cat.includes('vegan') || cat.includes('vegetarian'))) {
+      emoji = '🥗';
+    } else if (lowerCaseCategories.some(cat => cat.includes('dessert') || cat.includes('ice_cream'))) {
+      emoji = '🍰';
+    } else if (lowerCaseCategories.some(cat => cat.includes('breakfast') || cat.includes('brunch'))) {
+      emoji = '🍳';
+    } else if (lowerCaseCategories.some(cat => cat.includes('seafood'))) {
+      emoji = '🦞';
+    } else if (lowerCaseCategories.some(cat => cat.includes('thai'))) {
+      emoji = '🌶️';
+    } else if (lowerCaseCategories.some(cat => cat.includes('bakery'))) {
+      emoji = '🍞';
+    } else if (lowerCaseCategories.some(cat => cat.includes('fast_food'))) {
+      emoji = '🍟';
+    } else if (lowerCaseCategories.some(cat => cat.includes('restaurant'))) {
+      emoji = '🍽️'; // General restaurant
+    } else if (lowerCaseCategories.some(cat => cat.includes('supermarket') || cat.includes('grocery'))) {
+      emoji = '🛒';
+    } else if (lowerCaseCategories.some(cat => cat.includes('park'))) {
+      emoji = '🌳';
+    }
+  }
+
+  return divIcon({
+    html: `<div style="font-size: 24px;">${emoji}</div>`,
+    className: 'custom-map-marker',
+    iconSize: [24, 24],
+    iconAnchor: [12, 24],
+    popupAnchor: [0, -12],
+  });
+};
 
 // Define a custom red icon for the user's location
 const redIcon = new L.Icon({
@@ -80,10 +143,15 @@ const MapComponent: React.FC<MapComponentProps> = ({ restaurants, userLocation, 
       )}
 
       {restaurants.map((restaurant) => (
-        <Marker key={restaurant.id} position={[restaurant.latitude || 0, restaurant.longitude || 0]}>
+        <Marker key={restaurant.id} position={[restaurant.latitude || 0, restaurant.longitude || 0]} icon={getCategoryIcon(restaurant.categories)}>
           <Popup>
             <b>{restaurant.name}</b><br />
             {restaurant.address}<br />
+            {restaurant.categories && restaurant.categories.length > 0 && (
+              <>
+                Categories: {restaurant.categories.join(', ')}<br />
+              </>
+            )}
             Distance: {restaurant.distance?.toFixed(2)} miles
           </Popup>
         </Marker>
