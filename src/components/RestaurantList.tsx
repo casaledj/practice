@@ -23,6 +23,9 @@ const RestaurantList: React.FC<RestaurantListProps> = ({ restaurants }) => {
                                     <Card.Text>
                                         {restaurant.address}<br />
                                         Distance: {restaurant.distance ? `${restaurant.distance.toFixed(2)}` : 'N/A'} miles
+                                        {restaurant.categories && restaurant.categories.length > 0 && (
+                                            <><br />Categories: {restaurant.categories.join(', ')}</>
+                                        )}
                                     </Card.Text>
                                 </Card.Body>
                             </Card>

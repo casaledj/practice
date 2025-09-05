@@ -7,7 +7,7 @@ import { Restaurant } from './types';
 import { fetchRestaurants } from './services/restaurantService';
 import { getCurrentLocation, geocodeLocation } from './services/locationUtils';
 
-const App: React.FC = () => {
+function App() {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [city, setCity] = useState<{ latitude: number; longitude: number } | null>(null);

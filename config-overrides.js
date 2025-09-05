@@ -37,6 +37,7 @@ module.exports = override(
   addWebpackPlugin(
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
+      'process.env.REACT_APP_GEOAPIFY_API_KEY': JSON.stringify(process.env.REACT_APP_GEOAPIFY_API_KEY),
     })
   )
 );

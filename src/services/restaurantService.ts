@@ -31,6 +31,17 @@ export const fetchRestaurants = async (
                 ? calculateDistance(userLat, userLon, restaurantLat, restaurantLon)
                 : undefined; // Set to undefined if coordinates are missing
 
+            const rawCategories: string[] = feature.properties.categories || [];
+            const processedCategories = rawCategories
+                .filter(cat => cat.startsWith('catering.restaurant.') && cat !== 'catering.restaurant')
+                .map(cat => {
+                    const parts = cat.replace('catering.restaurant.', '').split('.');
+                    return parts.map(part => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
+                });
+
+            // Attempt to remove the restaurant name from the formatted address for better deduplication
+            const cleanedAddress = feature.properties.formatted.replace(new RegExp(`^${feature.properties.name},?\s*`, 'i'), '').trim();
+
             return {
                 id: feature.properties.place_id,
                 name: feature.properties.name,
@@ -38,8 +49,15 @@ export const fetchRestaurants = async (
                 distance: distance,
                 latitude: restaurantLat,
                 longitude: restaurantLon,
+                categories: processedCategories,
+                cleanedAddress: cleanedAddress, // Add cleanedAddress to the Restaurant object
             };
-        });
+        }).filter((restaurant: Restaurant, index: number, self: Restaurant[]) =>
+            index === self.findIndex((r: Restaurant) => (
+                r.name === restaurant.name &&
+                r.cleanedAddress === restaurant.cleanedAddress
+            ))
+        );
     } catch (error) {
         console.error('Error fetching restaurants:', error);
         throw error;
