@@ -51,6 +51,8 @@ export const fetchRestaurants = async (
                 longitude: restaurantLon,
                 categories: processedCategories,
                 cleanedAddress: cleanedAddress, // Add cleanedAddress to the Restaurant object
+                phoneNumber: feature.properties.datasource?.raw?.contact?.phone,
+                website: feature.properties.datasource?.raw?.contact?.website,
             };
         }).filter((restaurant: Restaurant, index: number, self: Restaurant[]) =>
             index === self.findIndex((r: Restaurant) => (
@@ -60,6 +62,28 @@ export const fetchRestaurants = async (
         );
     } catch (error) {
         console.error('Error fetching restaurants:', error);
+        throw error;
+    }
+};
+
+export const fetchRestaurantDetails = async (placeId: string): Promise<{ phoneNumber?: string; website?: string }> => {
+    try {
+        const GEOAPIFY_DETAILS_API_URL = `https://api.geoapify.com/v2/place-details`;
+        const response = await axios.get(GEOAPIFY_DETAILS_API_URL, {
+            params: {
+                id: placeId,
+                apiKey: GEOAPIFY_API_KEY,
+            },
+        });
+
+        const properties = response.data.features[0]?.properties;
+
+        return {
+            phoneNumber: properties?.contact?.phone,
+            website: properties?.website,
+        };
+    } catch (error) {
+        console.error('Error fetching restaurant details:', error);
         throw error;
     }
 };

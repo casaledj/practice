@@ -7,6 +7,8 @@ export interface Restaurant {
     latitude?: number;
     longitude?: number;
     cleanedAddress?: string;
+    phoneNumber?: string;
+    website?: string;
 }
 
 export interface Location {
